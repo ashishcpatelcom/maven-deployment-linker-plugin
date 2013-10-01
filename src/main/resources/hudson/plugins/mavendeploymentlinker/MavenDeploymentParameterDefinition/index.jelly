@@ -1,0 +1,43 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+
+	<f:entry title="${it.name}" description="${it.description}">
+		<div name="parameter" description="${it.description}">
+			<input type="hidden" name="name" value="${it.name}" />
+			<select name="projectName" id="projectNameSelect">
+				<j:forEach var="projectNameItem" items="${it.projectNameItems}" varStatus="current">
+					<option value="${projectNameItem.value}">${projectNameItem.name}</option>
+				</j:forEach>
+			</select>
+			<select name="artifactType" id="artifactTypeSelect">
+				<option value="Release">Release</option>
+				<option value="Snapshot">Snapshot</option>
+			</select>
+			<select name="value" id="versionSelect" />
+		</div>
+	</f:entry>
+
+  <script>
+    var pd = <st:bind value="${it}"/>
+
+    var loadVersionOptions = function () {
+		var projectName = document.getElementById('projectNameSelect').value;
+		var artifactType = document.getElementById('artifactTypeSelect').value;
+		
+		pd.getVersionItems(projectName, artifactType, function(t) {
+			var versionSelectEl = document.getElementById('versionSelect');
+			versionSelectEl.innerHTML = '';
+			t.responseObject().values.each (function(item) {
+				var option = document.createElement('option');
+				option.setAttribute('value', item.value);
+				option.innerHTML = item.name;
+				versionSelectEl.appendChild(option);
+			});
+			
+    	})
+    }
+	document.getElementById('projectNameSelect').onchange = loadVersionOptions;
+	document.getElementById('artifactTypeSelect').onchange = loadVersionOptions;
+	loadVersionOptions();
+  </script>
+
+</j:jelly>
